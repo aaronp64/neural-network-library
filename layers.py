@@ -1,5 +1,12 @@
 from collections.abc import Callable
 
+class InputLayer():
+    def __init__(self, size: int) -> None:
+        self._size: int = size
+
+    def connect(self) -> None:
+        pass
+
 class DenseLayer():
     def __init__(self, size: int, activation_func: Callable[[float], float]) -> None:
         self._size: int = size
