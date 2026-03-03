@@ -1,4 +1,15 @@
-class ReLU():
+from abc import ABC, abstractmethod
+
+class ActivationFunction(ABC):
+    @abstractmethod
+    def activate(self, value: float) -> float:
+        pass
+
+    @abstractmethod
+    def slope(self, value: float) -> float:
+        pass
+
+class ReLU(ActivationFunction):
     def activate(self, value: float) -> float:
         return value if value > 0 else 0
 

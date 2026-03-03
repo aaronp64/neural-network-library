@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
-from collections.abc import Callable
 from typing import Self
 
+from activation_functions import ActivationFunction
 from synapse import Synapse
 
 class Layer(ABC):
@@ -24,10 +24,10 @@ class InputLayer(Layer):
         raise NotImplementedError("InputLayer should always be first layer in network.")
 
 class DenseLayer(Layer):
-    def __init__(self, size: int, activation_func: Callable[[float], float]) -> None:
+    def __init__(self, size: int, activation_function: ActivationFunction) -> None:
         super().__init__(size)
         self._synapses: list[Synapse] = []
-        self._activation_func: Callable[[float], float] = activation_func
+        self._activation_function: ActivationFunction = activation_function
 
     def connect(self, prev_layer: Layer) -> None:
         self._synapses = []
