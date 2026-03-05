@@ -16,7 +16,7 @@ class LossFunction(ABC):
             predicted: npt.NDArray[np.float64]) -> npt.NDArray[np.float64]:
         pass
 
-def MeanSquaredError(LossFunction):
+class MeanSquaredError(LossFunction):
     def loss(
             self, actual: npt.NDArray[np.float64],
             predicted: npt.NDArray[np.float64]) -> np.float64:
