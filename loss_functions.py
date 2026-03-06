@@ -5,24 +5,26 @@ import numpy.typing as npt
 
 class LossFunction(ABC):
     @abstractmethod
-    def loss(
+    def apply(
             self, actual: npt.NDArray[np.float64],
             predicted: npt.NDArray[np.float64]) -> np.float64:
         pass
 
     @abstractmethod
-    def gradient(
+    def derivative(
             self, actual: npt.NDArray[np.float64],
             predicted: npt.NDArray[np.float64]) -> npt.NDArray[np.float64]:
         pass
 
 class MeanSquaredError(LossFunction):
-    def loss(
+    def apply(
             self, actual: npt.NDArray[np.float64],
             predicted: npt.NDArray[np.float64]) -> np.float64:
-        return np.float64(np.mean((predicted - actual) ** 2))
+        squared: npt.NDArray[np.float64] = np.square(predicted - actual)
+        batch_totals: npt.NDArray[np.float64] = np.sum(squared, axis=1)
+        return np.float64(np.mean(batch_totals))
 
-    def gradient(
+    def derivative(
             self, actual: npt.NDArray[np.float64],
             predicted: npt.NDArray[np.float64]) -> npt.NDArray[np.float64]:
-        return (2 / actual.size) * (predicted - actual)
+        return (2 / actual.shape[0]) * (predicted - actual)

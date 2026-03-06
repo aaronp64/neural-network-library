@@ -37,5 +37,5 @@ class DenseLayer(Layer):
         self._input = input_data
 
         pre_output = np.dot(self._input, self._weights) + self._biases
-        self._output = self._activation_function.activate(pre_output)
+        self._output = self._activation_function.apply(pre_output)
         return self._output
