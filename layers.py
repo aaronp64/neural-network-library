@@ -5,6 +5,7 @@ from numpy.typing import NDArray
 
 from activation_functions import ActivationFunction
 
+
 class Layer(ABC):
     def __init__(self, size: int) -> None:
         self._size: int = size
@@ -17,10 +18,11 @@ class Layer(ABC):
     def forward_pass(self, input_data: NDArray[np.float64]) -> NDArray[np.float64]:
         pass
 
+
 class DenseLayer(Layer):
     def __init__(
-            self, input_size: int, size: int,
-            activation_function: ActivationFunction) -> None:
+        self, input_size: int, size: int, activation_function: ActivationFunction
+    ) -> None:
         super().__init__(size)
 
         # TODO: Move weight initialization to separate functions to be passed in
@@ -39,14 +41,17 @@ class DenseLayer(Layer):
         return self._activation_function.apply(self._pre_output)
 
     def backward_pass(
-            self, output_gradient: NDArray[np.float64],
-            learning_rate: float) -> NDArray[np.float64]:
+        self, output_gradient: NDArray[np.float64], learning_rate: float
+    ) -> NDArray[np.float64]:
         chain_gradient: NDArray[np.float64] = (
-                output_gradient * self._activation_function.derivative(self._pre_output))
+            output_gradient * self._activation_function.derivative(self._pre_output)
+        )
 
         input_gradient: NDArray[np.float64] = np.dot(chain_gradient, self._weights.T)
         weight_gradient: NDArray[np.float64] = np.dot(self._input.T, chain_gradient)
-        bias_gradient: NDArray[np.float64] = np.sum(chain_gradient, axis=0, keepdims=True)
+        bias_gradient: NDArray[np.float64] = np.sum(
+            chain_gradient, axis=0, keepdims=True
+        )
 
         self._weights -= weight_gradient * learning_rate
         self._biases -= bias_gradient * learning_rate
