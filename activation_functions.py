@@ -20,3 +20,11 @@ class ReLU(ActivationFunction):
 
     def derivative(self, values: NDArray[np.float64]) -> NDArray[np.float64]:
         return (values > 0).astype(np.float64)
+
+
+class Linear(ActivationFunction):
+    def apply(self, values: NDArray[np.float64]) -> NDArray[np.float64]:
+        return values
+
+    def derivative(self, values: NDArray[np.float64]) -> NDArray[np.float64]:
+        return np.ones_like(values)

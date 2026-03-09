@@ -18,6 +18,12 @@ class Layer(ABC):
     def forward_pass(self, input_data: NDArray[np.float64]) -> NDArray[np.float64]:
         pass
 
+    @abstractmethod
+    def backward_pass(
+        self, output_gradient: NDArray[np.float64], learning_rate: float
+    ) -> NDArray[np.float64]:
+        pass
+
 
 class DenseLayer(Layer):
     def __init__(
