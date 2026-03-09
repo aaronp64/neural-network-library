@@ -47,7 +47,7 @@ class Network:
                 output = self.predict(x_batch)
                 gradient = loss_function.derivative(y_batch, output)
 
-                for layer in self._layers:
+                for layer in reversed(self._layers):
                     gradient = layer.backward_pass(gradient, learning_rate)
 
     def _validate_input_size(self, input_data: NDArray[np.float64]) -> None:
