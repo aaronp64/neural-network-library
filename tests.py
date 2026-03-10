@@ -1,7 +1,6 @@
 from unittest import TestCase
 
 import numpy as np
-from numpy.typing import NDArray
 
 from activation_functions import LeakyReLU, Linear, ReLU, Sigmoid, Tanh
 from layers import DenseLayer
