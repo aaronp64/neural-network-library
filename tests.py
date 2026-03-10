@@ -71,8 +71,11 @@ class Tests(TestCase):
         x_train = train_data[:800, :2]
         y_train = train_data[:800, 2:]
 
-        network = Network(input_size=2)
-        network.add_dense_layer(size=1)
+        network = Network(
+            layers=[
+                DenseLayer(size=1),
+            ]
+        )
         network.train(
             x_train,
             y_train,
