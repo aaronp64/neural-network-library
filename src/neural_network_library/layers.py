@@ -7,7 +7,7 @@ from typing import override
 
 import numpy as np
 
-from activation_functions import ActivationFunction, Linear
+from .activation_functions import ActivationFunction, Linear
 
 
 class Layer(ABC):

@@ -4,8 +4,8 @@ Provides Network class for neural network.
 
 import numpy as np
 
-from layers import Layer
-from loss_functions import LossFunction
+from .layers import Layer
+from .loss_functions import LossFunction
 
 
 class Network:

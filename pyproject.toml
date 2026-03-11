@@ -1,0 +1,20 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "neural-network-library"
+version = "0.1.0"
+description = "A small neural network library built in python for learning"
+requires-python = ">= 3.12"
+dependencies = [
+	"numpy",
+	"scikit-learn",
+]
+
+[project.optional-dependencies]
+dev = [
+	"black",
+	"mypy",
+	"pylint",
+]
