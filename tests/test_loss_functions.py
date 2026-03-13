@@ -7,12 +7,12 @@ from neural_network_library.loss_functions import MeanSquaredError
 
 class Tests(TestCase):
     def _test_loss_function(
-        self, loss_function, actual, predicted, loss_expected, derivative_expected
+        self, *, loss_function, actual, predicted, loss_expected, derivative_expected
     ):
-        loss = loss_function.apply(actual, predicted)
+        loss = loss_function.apply(actual=actual, predicted=predicted)
         self.assertTrue(np.isclose(loss, loss_expected))
 
-        derivative = loss_function.derivative(actual, predicted)
+        derivative = loss_function.derivative(actual=actual, predicted=predicted)
         self.assertTrue(np.allclose(derivative, derivative_expected))
 
     def test_mse(self):

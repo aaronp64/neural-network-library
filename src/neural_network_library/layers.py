@@ -42,7 +42,7 @@ class Layer(ABC):
 
     @abstractmethod
     def backward_pass(
-        self, output_gradient: np.ndarray, learning_rate: float
+        self, output_gradient: np.ndarray, *, learning_rate: float
     ) -> np.ndarray:
         """
         Calculates input gradient and updates weights/biases.
@@ -88,7 +88,7 @@ class DenseLayer(Layer):
 
     @override
     def backward_pass(
-        self, output_gradient: np.ndarray, learning_rate: float
+        self, output_gradient: np.ndarray, *, learning_rate: float
     ) -> np.ndarray:
         assert self._weights is not None
         assert self._input_cache is not None

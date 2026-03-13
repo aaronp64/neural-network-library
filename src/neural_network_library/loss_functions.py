@@ -14,7 +14,7 @@ class LossFunction(ABC):
     """
 
     @abstractmethod
-    def apply(self, actual: np.ndarray, predicted: np.ndarray) -> np.float64:
+    def apply(self, *, actual: np.ndarray, predicted: np.ndarray) -> np.float64:
         """
         Calculates the loss based on actual and predicted values.
 
@@ -27,7 +27,7 @@ class LossFunction(ABC):
         """
 
     @abstractmethod
-    def derivative(self, actual: np.ndarray, predicted: np.ndarray) -> np.ndarray:
+    def derivative(self, *, actual: np.ndarray, predicted: np.ndarray) -> np.ndarray:
         """
         Calculates the gradient of loss based on actual and predicted values.
 
@@ -48,11 +48,11 @@ class MeanSquaredError(LossFunction):
     """
 
     @override
-    def apply(self, actual: np.ndarray, predicted: np.ndarray) -> np.float64:
+    def apply(self, *, actual: np.ndarray, predicted: np.ndarray) -> np.float64:
         squared: np.ndarray = np.square(predicted - actual)
         row_totals: np.ndarray = np.sum(squared, axis=1)
         return np.float64(np.mean(row_totals))
 
     @override
-    def derivative(self, actual: np.ndarray, predicted: np.ndarray) -> np.ndarray:
+    def derivative(self, *, actual: np.ndarray, predicted: np.ndarray) -> np.ndarray:
         return (2 / actual.shape[0]) * (predicted - actual)

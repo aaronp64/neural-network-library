@@ -13,7 +13,12 @@ from neural_network_library.activation_functions import (
 
 class Tests(TestCase):
     def _test_activation_function(
-        self, activation_function, input_data, activated_expected, derivative_expected
+        self,
+        *,
+        activation_function,
+        input_data,
+        activated_expected,
+        derivative_expected,
     ):
         activated = activation_function.apply(input_data)
         self.assertTrue(np.allclose(activated, activated_expected))

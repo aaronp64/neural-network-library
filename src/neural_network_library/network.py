@@ -38,6 +38,7 @@ class Network:
         self,
         x_train: np.ndarray,
         y_train: np.ndarray,
+        *,
         batch_size: int,
         epochs: int,
         learning_rate: float,
@@ -70,11 +71,16 @@ class Network:
                 y_batch = y_train[i : i + batch_size]
 
                 output = self.predict(x_batch)
-                loss += loss_function.apply(y_batch, output) * output.shape[0]
-                gradient = loss_function.derivative(y_batch, output)
+                loss += (
+                    loss_function.apply(actual=y_batch, predicted=output)
+                    * output.shape[0]
+                )
+                gradient = loss_function.derivative(actual=y_batch, predicted=output)
 
                 for layer in reversed(self._layers):
-                    gradient = layer.backward_pass(gradient, learning_rate)
+                    gradient = layer.backward_pass(
+                        gradient, learning_rate=learning_rate
+                    )
 
             if show_progress:
                 print(f"Epoch {epoch+1} - Loss: {loss/training_size:.6f}")
