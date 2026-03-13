@@ -42,6 +42,7 @@ class Network:
         epochs: int,
         learning_rate: float,
         loss_function: LossFunction,
+        show_progress: bool = False,
     ) -> None:
         """
         Trains the network by predicting output, calculating loss, and backpropagation.
@@ -53,18 +54,27 @@ class Network:
             epochs (int): Number of times to repeat through data.
             learning_rate (float): How much to adjust weights/biases in response to gradient.
             loss_function (LossFunction): Loss function to compare predictions with y_train.
+            show_progress (bool): Whether to display epoch and loss information during training.
         """
         training_size: int = x_train.shape[0]
 
         for epoch in range(epochs):
-            # TODO: Print loss/accuracy for each epoch
+            shuffled_indices: np.ndarray = np.random.permutation(training_size)
+            x_train = x_train[shuffled_indices]
+            y_train = y_train[shuffled_indices]
+
             # TODO: Early stopping with message
+            loss: float = 0.0
             for i in range(0, training_size, batch_size):
                 x_batch = x_train[i : i + batch_size]
                 y_batch = y_train[i : i + batch_size]
 
                 output = self.predict(x_batch)
+                loss += loss_function.apply(y_batch, output) * output.shape[0]
                 gradient = loss_function.derivative(y_batch, output)
 
                 for layer in reversed(self._layers):
                     gradient = layer.backward_pass(gradient, learning_rate)
+
+            if show_progress:
+                print(f"Epoch {epoch+1} - Loss: {loss/training_size:.6f}")

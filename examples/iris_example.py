@@ -34,9 +34,10 @@ network.train(
     x_train,
     y_train,
     batch_size=4,
-    epochs=100,
+    epochs=25,
     learning_rate=0.1,
     loss_function=MeanSquaredError(),
+    show_progress=True,
 )
 predicted = network.predict(x_test)
 
@@ -44,4 +45,4 @@ y_predicted_categories = np.argmax(predicted, axis=1)
 y_actual_categories = np.argmax(y_test, axis=1)
 
 accuracy = np.mean(y_predicted_categories == y_actual_categories)
-print(f"Accuracy: {accuracy}")
+print(f"Accuracy: {accuracy*100:.2f}%")
