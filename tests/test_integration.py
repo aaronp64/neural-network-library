@@ -1,18 +1,17 @@
 from unittest import TestCase
 
 import numpy as np
-from sklearn.datasets import load_iris  # type: ignore
+from sklearn.datasets import load_iris, make_moons  # type: ignore
 from sklearn.model_selection import train_test_split  # type: ignore
 from sklearn.preprocessing import OneHotEncoder, StandardScaler  # type: ignore
 
 from neural_network_library.activation_functions import (
     LeakyReLU,
-    Linear,
     ReLU,
     Sigmoid,
     Tanh,
 )
-from neural_network_library.layers import DenseLayer
+from neural_network_library.layers import DenseLayer, DropoutLayer
 from neural_network_library.loss_functions import MeanSquaredError
 from neural_network_library.network import Network
 
@@ -77,6 +76,48 @@ class Tests(TestCase):
             y_train,
             batch_size=4,
             epochs=100,
+            learning_rate=0.1,
+            loss_function=MeanSquaredError(),
+        )
+        predicted = network.predict(x_test)
+
+        y_predicted_categories = np.argmax(predicted, axis=1)
+        y_actual_categories = np.argmax(y_test, axis=1)
+
+        accuracy = np.mean(y_predicted_categories == y_actual_categories)
+        self.assertGreater(accuracy, 0.95)
+
+    def test_moons(self):
+        np.random.seed(0)
+
+        x, y = make_moons(n_samples=5000, noise=0.2, random_state=0)
+        y = y.reshape(-1, 1)
+
+        scaler = StandardScaler()
+        x_scaled = scaler.fit_transform(x)
+
+        encoder = OneHotEncoder(sparse_output=False)
+        y_encoded = encoder.fit_transform(y)
+
+        x_train, x_test, y_train, y_test = train_test_split(
+            x_scaled, y_encoded, test_size=0.2, random_state=0
+        )
+
+        network = Network(
+            layers=[
+                DenseLayer(size=128, activation_function=LeakyReLU()),
+                DropoutLayer(),
+                DenseLayer(size=64, activation_function=Tanh()),
+                DropoutLayer(0.2),
+                DenseLayer(size=32, activation_function=ReLU()),
+                DenseLayer(size=2, activation_function=Sigmoid()),
+            ]
+        )
+        network.train(
+            x_train,
+            y_train,
+            batch_size=8,
+            epochs=25,
             learning_rate=0.1,
             loss_function=MeanSquaredError(),
         )

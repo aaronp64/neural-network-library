@@ -19,6 +19,12 @@ class Network:
     def __init__(self, layers: list[Layer]):
         self._layers: list[Layer] = layers
 
+    def _forward_pass(self, input_data: np.ndarray, *, is_training: bool) -> np.ndarray:
+        output = input_data
+        for layer in self._layers:
+            output = layer.forward_pass(output, is_training=is_training)
+        return output
+
     def predict(self, input_data: np.ndarray) -> np.ndarray:
         """
         Passes input through layers to predict output values.
@@ -29,10 +35,7 @@ class Network:
         Returns:
             np.ndarray: Output of final layer.
         """
-        output = input_data
-        for layer in self._layers:
-            output = layer.forward_pass(output)
-        return output
+        return self._forward_pass(input_data, is_training=False)
 
     def train(
         self,
@@ -70,7 +73,7 @@ class Network:
                 x_batch = x_train[i : i + batch_size]
                 y_batch = y_train[i : i + batch_size]
 
-                output = self.predict(x_batch)
+                output = self._forward_pass(x_batch, is_training=True)
                 loss += (
                     loss_function.apply(actual=y_batch, predicted=output)
                     * output.shape[0]

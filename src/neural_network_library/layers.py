@@ -13,28 +13,16 @@ from .activation_functions import ActivationFunction, Linear
 class Layer(ABC):
     """
     Abstract base class for layers.
-
-    Args:
-        size (int): The number of neurons to use in this layer.
     """
 
-    def __init__(self, size: int) -> None:
-        self._size: int = size
-
-    @property
-    def size(self) -> int:
-        """
-        int: The number of neurons in this layer.
-        """
-        return self._size
-
     @abstractmethod
-    def forward_pass(self, input_data: np.ndarray) -> np.ndarray:
+    def forward_pass(self, input_data: np.ndarray, *, is_training: bool) -> np.ndarray:
         """
         Calculates the output values for this layer.
 
         Args:
             input_data (np.ndarray): Input received from previous layer.
+            is_training (bool): Whether this pass is part of training
 
         Returns:
             np.ndarray: Layer output.
@@ -66,7 +54,7 @@ class DenseLayer(Layer):
     def __init__(
         self, size: int, activation_function: ActivationFunction = Linear()
     ) -> None:
-        super().__init__(size)
+        self._size: int = size
 
         self._weights: np.ndarray | None = None
         self._biases: np.ndarray = np.zeros((1, size))
@@ -76,10 +64,10 @@ class DenseLayer(Layer):
         self._z_cache: np.ndarray | None = None  # Pre-activation output
 
     @override
-    def forward_pass(self, input_data: np.ndarray) -> np.ndarray:
+    def forward_pass(self, input_data: np.ndarray, *, is_training: bool) -> np.ndarray:
         if self._weights is None:
             # TODO: Allow passing in different initialization methods
-            self._weights = np.random.randn(input_data.shape[-1], self.size) * 0.01
+            self._weights = np.random.randn(input_data.shape[-1], self._size) * 0.01
 
         self._input_cache = input_data
 
@@ -106,3 +94,31 @@ class DenseLayer(Layer):
         self._biases -= bias_gradient * learning_rate
 
         return input_gradient
+
+
+class DropoutLayer(Layer):
+    """
+    Randomly masks out neurons during training.
+
+    Args:
+        dropout_rate (float): Probability of a neuron being zeroed out (default 0.5).
+    """
+
+    def __init__(self, dropout_rate: float = 0.5) -> None:
+        self._dropout_rate: float = dropout_rate
+        self._mask: np.ndarray | None = None
+
+    @override
+    def forward_pass(self, input_data: np.ndarray, *, is_training: bool) -> np.ndarray:
+        if not is_training:
+            return input_data
+
+        p: float = 1 - self._dropout_rate
+        self._mask = np.random.binomial(1, p, size=input_data.shape) / p
+        return input_data * self._mask
+
+    @override
+    def backward_pass(
+        self, output_gradient: np.ndarray, *, learning_rate: float
+    ) -> np.ndarray:
+        return output_gradient * self._mask
