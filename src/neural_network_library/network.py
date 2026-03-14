@@ -19,11 +19,15 @@ class Network:
     def __init__(self, layers: list[Layer]):
         self._layers: list[Layer] = layers
 
-    def _forward_pass(self, input_data: np.ndarray, *, is_training: bool) -> np.ndarray:
+    def _forward(self, input_data: np.ndarray, *, is_training: bool) -> np.ndarray:
         output = input_data
         for layer in self._layers:
-            output = layer.forward_pass(output, is_training=is_training)
+            output = layer.forward(output, is_training=is_training)
         return output
+
+    def _shuffled(self, x: np.ndarray, y: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
+        shuffled_indices: np.ndarray = np.random.permutation(x.shape[0])
+        return x[shuffled_indices], y[shuffled_indices]
 
     def predict(self, input_data: np.ndarray) -> np.ndarray:
         """
@@ -35,7 +39,7 @@ class Network:
         Returns:
             np.ndarray: Output of final layer.
         """
-        return self._forward_pass(input_data, is_training=False)
+        return self._forward(input_data, is_training=False)
 
     def train(
         self,
@@ -63,27 +67,20 @@ class Network:
         training_size: int = x_train.shape[0]
 
         for epoch in range(epochs):
-            shuffled_indices: np.ndarray = np.random.permutation(training_size)
-            x_train = x_train[shuffled_indices]
-            y_train = y_train[shuffled_indices]
-
             # TODO: Early stopping with message
             loss: float = 0.0
+            x_train, y_train = self._shuffled(x_train, y_train)
             for i in range(0, training_size, batch_size):
                 x_batch = x_train[i : i + batch_size]
                 y_batch = y_train[i : i + batch_size]
 
-                output = self._forward_pass(x_batch, is_training=True)
-                loss += (
-                    loss_function.apply(actual=y_batch, predicted=output)
-                    * output.shape[0]
-                )
-                gradient = loss_function.derivative(actual=y_batch, predicted=output)
+                output: np.ndarray = self._forward(x_batch, is_training=True)
+                count: int = output.shape[0]  # Last batch may be smaller than others.
 
+                loss += loss_function.apply(actual=y_batch, predicted=output) * count
+                gradient = loss_function.derivative(actual=y_batch, predicted=output)
                 for layer in reversed(self._layers):
-                    gradient = layer.backward_pass(
-                        gradient, learning_rate=learning_rate
-                    )
+                    gradient = layer.backward(gradient, learning_rate=learning_rate)
 
             if show_progress:
                 print(f"Epoch {epoch+1} - Loss: {loss/training_size:.6f}")

@@ -16,7 +16,7 @@ class Layer(ABC):
     """
 
     @abstractmethod
-    def forward_pass(self, input_data: np.ndarray, *, is_training: bool) -> np.ndarray:
+    def forward(self, input_data: np.ndarray, *, is_training: bool) -> np.ndarray:
         """
         Calculates the output values for this layer.
 
@@ -29,7 +29,7 @@ class Layer(ABC):
         """
 
     @abstractmethod
-    def backward_pass(
+    def backward(
         self, output_gradient: np.ndarray, *, learning_rate: float
     ) -> np.ndarray:
         """
@@ -64,7 +64,7 @@ class DenseLayer(Layer):
         self._z_cache: np.ndarray | None = None  # Pre-activation output
 
     @override
-    def forward_pass(self, input_data: np.ndarray, *, is_training: bool) -> np.ndarray:
+    def forward(self, input_data: np.ndarray, *, is_training: bool) -> np.ndarray:
         if self._weights is None:
             # TODO: Allow passing in different initialization methods
             self._weights = np.random.randn(input_data.shape[-1], self._size) * 0.01
@@ -75,7 +75,7 @@ class DenseLayer(Layer):
         return self._activation_function.apply(self._z_cache)
 
     @override
-    def backward_pass(
+    def backward(
         self, output_gradient: np.ndarray, *, learning_rate: float
     ) -> np.ndarray:
         assert self._weights is not None
@@ -109,7 +109,7 @@ class DropoutLayer(Layer):
         self._mask: np.ndarray | None = None
 
     @override
-    def forward_pass(self, input_data: np.ndarray, *, is_training: bool) -> np.ndarray:
+    def forward(self, input_data: np.ndarray, *, is_training: bool) -> np.ndarray:
         if not is_training:
             return input_data
 
@@ -118,7 +118,7 @@ class DropoutLayer(Layer):
         return input_data * self._mask
 
     @override
-    def backward_pass(
+    def backward(
         self, output_gradient: np.ndarray, *, learning_rate: float
     ) -> np.ndarray:
         return output_gradient * self._mask
