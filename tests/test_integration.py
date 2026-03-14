@@ -20,14 +20,21 @@ class Tests(TestCase):
     def test_add(self):
         np.random.seed(0)
 
-        train_data = np.zeros((1000, 3))
-        for i in range(1000):
-            # TODO: Support feature scaling to better handle large numbers
-            a, b = np.random.randint(-100, 100, size=2)
+        train_data = np.zeros((5000, 3))
+        for i in range(train_data.shape[0]):
+            a, b = np.random.randint(-1000000, 1000000, size=2)
             train_data[i] = [a, b, a + b]
 
-        x_train = train_data[:800, :2]
-        y_train = train_data[:800, 2:]
+        x_train, x_test, y_train, y_test = train_test_split(
+            train_data[:, :2], train_data[:, 2:], test_size=0.2, random_state=0
+        )
+
+        x_scaler = StandardScaler()
+        x_train = x_scaler.fit_transform(x_train)
+        x_test = x_scaler.transform(x_test)
+
+        y_scaler = StandardScaler()
+        y_train = y_scaler.fit_transform(y_train)
 
         network = Network(
             layers=[
@@ -39,13 +46,11 @@ class Tests(TestCase):
             y_train,
             batch_size=32,
             epochs=10,
-            learning_rate=0.0001,
+            learning_rate=0.01,
             loss_function=MeanSquaredError(),
         )
 
-        x_test = train_data[800:, :2]
-        y_test = train_data[800:, 2:]
-        predicted = network.predict(x_test)
+        predicted = y_scaler.inverse_transform(network.predict(x_test))
         max_difference = np.abs(y_test - predicted).max()
         self.assertLess(max_difference, 0.01)
 
@@ -55,15 +60,17 @@ class Tests(TestCase):
         iris = load_iris()
         x, y = iris.data, iris.target.reshape(-1, 1)
 
-        scaler = StandardScaler()
-        x_scaled = scaler.fit_transform(x)
-
-        encoder = OneHotEncoder(sparse_output=False)
-        y_encoded = encoder.fit_transform(y)
-
         x_train, x_test, y_train, y_test = train_test_split(
-            x_scaled, y_encoded, test_size=0.2, random_state=0
+            x, y, test_size=0.2, random_state=0
         )
+
+        scaler = StandardScaler()
+        x_train = scaler.fit_transform(x_train)
+        x_test = scaler.transform(x_test)
+
+        encoder = OneHotEncoder(sparse_output=False, handle_unknown="ignore")
+        y_train = encoder.fit_transform(y_train)
+        y_test = encoder.transform(y_test)
 
         network = Network(
             layers=[
@@ -93,15 +100,17 @@ class Tests(TestCase):
         x, y = make_moons(n_samples=5000, noise=0.2, random_state=0)
         y = y.reshape(-1, 1)
 
-        scaler = StandardScaler()
-        x_scaled = scaler.fit_transform(x)
-
-        encoder = OneHotEncoder(sparse_output=False)
-        y_encoded = encoder.fit_transform(y)
-
         x_train, x_test, y_train, y_test = train_test_split(
-            x_scaled, y_encoded, test_size=0.2, random_state=0
+            x, y, test_size=0.2, random_state=0
         )
+
+        scaler = StandardScaler()
+        x_train = scaler.fit_transform(x_train)
+        x_test = scaler.transform(x_test)
+
+        encoder = OneHotEncoder(sparse_output=False, handle_unknown="ignore")
+        y_train = encoder.fit_transform(y_train)
+        y_test = encoder.transform(y_test)
 
         network = Network(
             layers=[
